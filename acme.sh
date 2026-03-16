@@ -5662,6 +5662,7 @@ renewAll() {
   _error_msg=""
   _skipped_msg=""
   _error_level=$NOTIFY_LEVEL_SKIP
+  _has_renewed=0
   _notify_code=$RENEW_SKIP
   _set_level=${NOTIFY_LEVEL:-$NOTIFY_LEVEL_DEFAULT}
   _debug "_set_level" "$_set_level"
@@ -5684,6 +5685,7 @@ renewAll() {
     rc="$?"
     _debug "Return code: $rc"
     if [ "$rc" = "0" ]; then
+      _has_renewed=1
       if [ $_error_level -gt $NOTIFY_LEVEL_RENEW ]; then
         _error_level="$NOTIFY_LEVEL_RENEW"
         _notify_code=0
@@ -5738,6 +5740,7 @@ renewAll() {
   done
   _debug _error_level "$_error_level"
   _debug _set_level "$_set_level"
+  _debug _has_renewed "$_has_renewed"
   if [ $_error_level -le $_set_level ]; then
     if [ -z "$NOTIFY_MODE" ] || [ "$NOTIFY_MODE" = "$NOTIFY_MODE_BULK" ]; then
       _msg_subject="Renew"
@@ -5763,7 +5766,21 @@ ${_skipped_msg}
       _send_notify "$_msg_subject" "$_msg_data" "$NOTIFY_HOOK" "$_notify_code"
     fi
   fi
-
+  if [ "$_has_renewed" = "1" ]; then
+    _info "Renewal completed: At least one certificate was renewed, start sync server."
+    if [ -f "$LE_WORKING_DIR/sync.sh" ]; then
+      (
+        . "$LE_WORKING_DIR/sync.sh"
+        if _exists sync; then
+          sync
+        fi
+      )
+    else
+      _err "sync.sh not found, skipping server sync."
+    fi
+  else
+    _info "Renewal completed: All certificates were skipped."
+  fi
   return "$_ret"
 }
 
