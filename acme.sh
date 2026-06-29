@@ -6,7 +6,7 @@ PROJECT_NAME="acme.sh"
 
 PROJECT_ENTRY="acme.sh"
 
-PROJECT="https://github.com/acmesh-official/$PROJECT_NAME"
+PROJECT="https://github.com/SaintVamp/$PROJECT_NAME"
 
 DEFAULT_INSTALL_HOME="$HOME/.$PROJECT_NAME"
 
